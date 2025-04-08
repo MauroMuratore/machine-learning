@@ -1,0 +1,86 @@
+# Air Quality and Pollution Assessment
+
+## Introduzione
+
+Il dataset preso in considerazione (https://www.kaggle.com/datasets/mujtabamatin/air-quality-and-pollution-assessment) si concentra sulla predizione della qualità dell'aria attraverso diverse regioni, basandosi su una serie di fattori demografici ed ambientali.
+
+L'obbiettivo del lavoro svolto dal gruppo è stato di analizzare diversi algoritmi di predizione multi-classe e confrontare i risultati ottenuti sulla predizione. In particolar modo sono stati selezionati 3 principali algoritmi da allenare e valutare:
+
+- *Decision tree*
+- *Random forest*
+- *Support Vector Machine*
+
+## Analisi del dataset
+
+Il dataset è composto da 5000 records, ognuno caratterizzato da 9 key features ed una classe attribuibile fra 4 possibili. Nello specifico le features presenti sono:
+
+- *Temperature* (°C): Temperatura media della regione presa in considerazione
+- *Humidity* (%): Umidità relativa della regione
+- *PM2.5* (µg/m³): Concentrazione di polveri sottili nell'aria 
+- *PM10* (µg/m³): Concentrazione di polveri totali sospese nell'aria
+- *NO~2~* (ppb): Livello di concentrazione di diossido di azoto
+- *SO~2~* (ppb): Livello di concentrazione di diossido di zolfo
+- *CO* (ppm): Livello di concentrazione di monossido di carbonio
+- *Proximity to Industrial Areas* (Km): Distanza dalla zona industriale più vicina
+- *Population density* (people/km^2^): Densità di popolazione per chilometro quadrato
+
+Mentre il target è *Air Quality* con 4 possibili valori:
+
+- *Good*: Aria pulita con un basso livello di inquinamento
+- *Moderate*: Aria con qualità accettabile ma con presenza di alcuni agenti inquinanti
+- *Poor*: Aria di cattiva qualità con un notevole inquinamento che potrebbe causare problemi di salute in soggetti sensibili
+- *Hazardous*: Aria di pessima qualità con un estremo inquinamento che potrebbe causare problemi di salute in tutta la popolazione
+
+Osservando nello specifico il dataset si può notare come tutti e 5000 i records siano completi, senza valori mancanti. Le features, inoltre, sono tutte di tipo continuo.
+
+<img src="/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408153541789.png" alt="image-20250408153541789"/>
+
+
+Andando ad osservare la distribuzione delle features risulta immediatamente interessante la distribuzione della *proximity*. Essa ha un andamento simile ad una bimodale, con un picco a 5 ed uno a 10 chilometri. Questo comportamento può indicare una suddivisione in cluster distinti dei dati, andando ad individuare una possibile superficie di separazione.
+
+![image-20250408165945108](/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408165945108.png)
+
+
+
+La classe,invece, è stata modificata per renderla ordinale, dalla qualità migliore alla peggiore.
+
+<img src="/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408154442847.png" alt="image-20250408154442847" style="zoom:150%;"/>
+
+Osservando la distribuzione delle classi assegnate si può notare uno sbilanciamento dei records con una preponderanza della classe *Good*. 
+
+![image-20250408170101998](/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408170101998.png)
+
+Per evidenziare possibili problematiche legate alla distribuzione delle labels si è verificato come le features del dataset influenzino la classe di appartenenza
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
