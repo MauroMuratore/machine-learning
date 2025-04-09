@@ -1,5 +1,7 @@
 # Air Quality and Pollution Assessment
 
+
+
 ## Introduzione
 
 Il dataset preso in considerazione (https://www.kaggle.com/datasets/mujtabamatin/air-quality-and-pollution-assessment) si concentra sulla predizione della qualità dell'aria attraverso diverse regioni, basandosi su una serie di fattori demografici ed ambientali.
@@ -9,6 +11,8 @@ L'obbiettivo del lavoro svolto dal gruppo è stato di analizzare diversi algorit
 - *Decision tree*
 - *Random forest*
 - *Support Vector Machine*
+
+
 
 ## Analisi del dataset
 
@@ -21,7 +25,7 @@ Il dataset è composto da 5000 records, ognuno caratterizzato da 9 key features 
 - *NO~2~* (ppb): Livello di concentrazione di diossido di azoto
 - *SO~2~* (ppb): Livello di concentrazione di diossido di zolfo
 - *CO* (ppm): Livello di concentrazione di monossido di carbonio
-- *Proximity to Industrial Areas* (Km): Distanza dalla zona industriale più vicina
+- *Proximity to Industrial Areas* (km): Distanza dalla zona industriale più vicina
 - *Population density* (people/km^2^): Densità di popolazione per chilometro quadrato
 
 Mentre il target è *Air Quality* con 4 possibili valori:
@@ -33,32 +37,66 @@ Mentre il target è *Air Quality* con 4 possibili valori:
 
 Osservando nello specifico il dataset si può notare come tutti e 5000 i records siano completi, senza valori mancanti. Le features, inoltre, sono tutte di tipo continuo.
 
-<img src="/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408153541789.png" alt="image-20250408153541789"/>
+<img src="immagini_report/image-20250408153541789.png" alt="image-20250408153541789"/>
 
+### Analisi Features
 
 Andando ad osservare la distribuzione delle features risulta immediatamente interessante la distribuzione della *proximity*. Essa ha un andamento simile ad una bimodale, con un picco a 5 ed uno a 10 chilometri. Questo comportamento può indicare una suddivisione in cluster distinti dei dati, andando ad individuare una possibile superficie di separazione.
 
-![image-20250408165945108](/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408165945108.png)
+![image-20250408165945108](immagini_report/image-20250408165945108.png)
+
+In seguito è stata analizzata la correlazione fra le features, andando ad individuare l'informazione mutua fra di esse.  Dalla heatmap della correlazione è utile evidenziare tre situazioni:
+
+- La concentrazione di PM2.5 e PM10 sono altamente correlate e questo sottolinea la possibilità di eliminare una delle due features senza perdita significativa di informazioni
+- La vicinanza alle zone industriali è fortemente correlata negativamente con tutte le altre features e questo sottolinea il contenuto informativo espresso da questa feature
+- La concentrazione di NO~2~ , SO~2~ e CO sono abbastanza correlate e questo sottolinea un'ulteriore possibile aggregazione delle features
+
+<img src="immagini_report/image-20250409170500255.png" alt="image-20250409170500255" style="zoom:60%;" />
 
 
 
-La classe,invece, è stata modificata per renderla ordinale, dalla qualità migliore alla peggiore.
+### Analisi classi
 
-<img src="/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408154442847.png" alt="image-20250408154442847" style="zoom:150%;"/>
+In seguito è seguita un'analisi dei records includendo la classe assegnata per verificare la bontà del dataset. Per visualizzare in modo migliore i dati la classe è stata modificata per renderla ordinale, dalla qualità migliore alla peggiore.
+
+<img src="immagini_report/image-20250408154442847.png" alt="image-20250408154442847" style="zoom:100%;"/>
 
 Osservando la distribuzione delle classi assegnate si può notare uno sbilanciamento dei records con una preponderanza della classe *Good*. 
 
-![image-20250408170101998](/home/mattinz/Desktop/relazioneMLDM.assets/image-20250408170101998.png)
-
-Per evidenziare possibili problematiche legate alla distribuzione delle labels si è verificato come le features del dataset influenzino la classe di appartenenza
+<img src="immagini_report/image-20250408170101998.png" alt="image-20250408170101998" style="zoom:67%;" />
 
 
 
+### Analisi features e classi
+
+Per evidenziare possibili problematiche legate alla distribuzione delle classi target si è verificato come le features del dataset influenzino la classe di appartenenza del record. I risultati più significativi ottenuti sono:
+
+- Alta correlazione fra presenza di particolato, sia PM2.5 che PM10, ed una cattiva qualità dell'aria: nessun record della classe *Good* ha PM > 100 e lo spread dei valori di questa classe è molto limitato 
+- Alta correlazione fra la densità di CO e la qualità dell'aria: i record della classe *Good* hanno uno spread di valori molto ridotto con valori di CO < 1.5
+- Alta correlazione inversa fra la vicinanza ad aree industriali e la qualità dell'aria: nessun record della classe *Good* ha Proximity < 10 e, nonostante la presenza di alcuni outliers nelle altre categorie, queste hanno comunque una media di distanza dalle aree industriali significativamente inferiore rispetto alla classe *Good* 
+
+Di conseguenza si può affermare che, nonostante il forte sbilanciamento verso records di classe *Good*, la separazione abbastanza netta fornita dalla caratterizzazione delle features del dataset permetterà di eseguire un training efficace.
+
+<img src="immagini_report/image-20250409154349426.png" alt="image-20250409154349426" style="zoom:67%;" />
+
+Proseguendo nell'analisi dei dati si è scelto di visualizzare la disposizione delle classi nello spazio delle features per individuare ulteriori trend dei dati in modo più esplicito.
+
+
+Il primo grafico rappresenta la relazione fra densità di popolazione (asse y), vicinanza a zone industriali (asse x), temperatura (grandezza dei punti) e qualità dell'aria. Da questa rappresentazione risulta ancora più evidente l'impatto della distanza delle zone industriali nella qualità dell'aria, con due principali scalini uno a 5 km ed uno a 10 km. Dal disegno si nota inoltre come, in media, le regioni più inquinate siano quelle con alta densità di popolazione evidenziando la possibile influenza della presenza di un numero maggiore di persone rispetto all'inquinamento dell'aria. 
+
+<img src="immagini_report/image-20250409175402977.png" alt="image-20250409175402977" style="zoom:67%;" />
+
+Il secondo grafico rappresenta la relazione fra le densità dei tre elementi inquinanti reciprocamente e la qualità dell'aria.  Come già visto nell'analisi della correlazione delle features, i tre inquinanti seguono un andamento direttamente proporzionale fra di loro mentre la qualità dell'aria risulta inversamente proporzionale ad essi. In particolar modo nel grafo "NO2-CO" si può notare una separazione abbastanza netta delle 4 classi con fenomeni importanti di overlapping solamente nelle classi *Poor* e *Hazardous*.  
+
+<img src="immagini_report/image-20250409184051575.png" alt="image-20250409184051575" style="zoom:67%;" />
+
+Aggiungendo al grafo "NO2-CO" un'ulteriore dimensione, filtrando per vicinanza alle zone industriali, si può valutare in modo migliore l'impatto della distanza su qualità e presenza di sostanze inquinanti. 
+
+<img src="immagini_report/image-20250409191233329.png" alt="image-20250409191233329" style="zoom:67%;" />
 
 
 
-
-
+## Preprocessing
 
 
 
