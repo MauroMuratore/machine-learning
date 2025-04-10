@@ -1,7 +1,5 @@
 # Air Quality and Pollution Assessment
 
-
-
 ## Introduzione
 
 Il dataset preso in considerazione (https://www.kaggle.com/datasets/mujtabamatin/air-quality-and-pollution-assessment) si concentra sulla predizione della qualità dell'aria attraverso diverse regioni, basandosi su una serie di fattori demografici ed ambientali.
@@ -45,7 +43,7 @@ Andando ad osservare la distribuzione delle features risulta immediatamente inte
 
 ![image-20250408165945108](immagini_report/image-20250408165945108.png)
 
-In seguito è stata analizzata la correlazione fra le features, andando ad individuare l'informazione mutua fra di esse.  Dalla heatmap della correlazione è utile evidenziare tre situazioni:
+In seguito è stata analizzata la correlazione fra le features, andando ad individuare il rapporto di crescita fra di esse.  Dalla heatmap della correlazione è utile evidenziare tre situazioni:
 
 - La concentrazione di PM2.5 e PM10 sono altamente correlate e questo sottolinea la possibilità di eliminare una delle due features senza perdita significativa di informazioni
 - La vicinanza alle zone industriali è fortemente correlata negativamente con tutte le altre features e questo sottolinea il contenuto informativo espresso da questa feature
@@ -90,35 +88,83 @@ Il secondo grafico rappresenta la relazione fra le densità dei tre elementi inq
 
 <img src="immagini_report/image-20250409184051575.png" alt="image-20250409184051575" style="zoom:67%;" />
 
-Aggiungendo al grafo "NO2-CO" un'ulteriore dimensione, filtrando per vicinanza alle zone industriali, si può valutare in modo migliore l'impatto della distanza su qualità e presenza di sostanze inquinanti. 
+Aggiungendo al grafo "NO2-CO" un'ulteriore dimensione, filtrando per vicinanza alle zone industriali, si può valutare in modo migliore l'impatto della distanza su qualità dell'aria e presenza di sostanze inquinanti. 
 
 <img src="immagini_report/image-20250409191233329.png" alt="image-20250409191233329" style="zoom:67%;" />
 
 
 
-## Preprocessing
+## Preprocessing e feature selection
+
+### Preprocessing
+
+Dalla prima analisi del dataset era già emerso l'assenza di records con valori mancanti e di conseguenza non è necessario agire per correggere questa tipologia di errore nel dataset. Per quanto riguarda, invece, i valori assunti dalla features sono stati verificati che fossero tutti compatibili con la caratteristica espressa dalla feature. In particolar modo sono stati rilevati records con PM10 < 0 e SO2 < 0 e questi valori risultano sbagliati in quanto una concentrazione può essere al minimo 0. Di conseguenza tutti i valori incorretti sono stati modificati in 0. 
+
+![image-20250410112859158](immagini_report/image-20250410112859158.png)
+
+### Feature Selection
+
+Per eseguire il training sono stati scelti 3 subsets delle features in base ai risultati ottenuti dalle analisi precedenti:
+
+- *min* ["CO", "NO2", "Proximity_to_Industrial_Areas"]: Subset minimo, creato utilizzando solamente 3 delle features. In particolare contiene le features considerate a più alto contenuto informativo
+- *mid* ["CO", "NO2", "Proximity_to_Industrial_Areas", "SO2", "PM2.5"]: Subset di media grandezza composto dal subset minimo aggiunto delle features "SO2" e "PM2.5"
+- *max*: set completo di tutte le features del dataset
 
 
 
+## Albero di decisione
 
+### Parametri
 
+Per selezionare i parametri migliori da utilizzare nel training sono state eseguite 3 GridSearch, una per ogni subset di features. Nello specifico sono stati utilizzati:
 
+- *criterion* [Gini, logloss, entropy] : Criterio utilizzato per lo split
+- *splitter* [best, random] : Strategia di scelta dello split
+- *max depth* [3,5,7,9,15,20, None] 
+- *min samples Split* [2, 5, 10, 50, 100, 250]
 
+Inoltre ogni GridSearch è stata valutata con una 5-fold cross validation.
 
+#### Min Tree
 
+Per quanto riguarda il decision tree sul subset minimo i parametri migliori sono risultati: 
 
+- criterion: entropy
+- splitter: best
+- max depth: 7
+- min samples split: 50
 
+#### Mid  Tree
 
+Per quanto riguarda il decision tree sul subset di media grandezza i parametri migliori sono risultati: 
 
+- criterion: Gini
+- splitter: best
+- max depth: 9
+- min samples split: 10
 
+#### Max Tree
 
+Per quanto riguarda il decision tree sul set completo i parametri migliori sono risultati: 
 
+- criterion: Gini
+- splitter: best
+- max depth: 20
+- min samples split: 10
 
+#### Evoluzione dei parametri
 
+Visualizzando come i parametri si siano modificati con il cambio di features utilizzate è interessante notare come il numero di elementi per effettuare lo split di un nodo sia diminuito drasticamente mentre la profondità è cresciuta. 
 
+<img src="immagini_report/image-20250410180259424.png" alt="image-20250410180259424" style="zoom:67%;" />
 
+### Analisi risultati
 
+Una volta allenati i tre decision trees differenti è possibile confrontare i risultati ottenuti. Per farlo è stato scelto di rappresentare le confusion matrix delle predizioni effettuate dagli alberi ed il classification report. 
 
+<img src="immagini_report/image-20250410184450489.png" alt="image-20250410184450489"  />
+
+<img src="immagini_report/class_report.png" alt="class_report" style="zoom:150%;" />
 
 
 
