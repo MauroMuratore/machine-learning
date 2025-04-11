@@ -107,7 +107,7 @@ Dalla prima analisi del dataset era già emerso l'assenza di records con valori 
 Per eseguire il training sono stati scelti 3 subsets delle features in base ai risultati ottenuti dalle analisi precedenti:
 
 - *min* ["CO", "NO2", "Proximity_to_Industrial_Areas"]: Subset minimo, creato utilizzando solamente 3 delle features. In particolare contiene le features considerate a più alto contenuto informativo
-- *mid* ["CO", "NO2", "Proximity_to_Industrial_Areas", "SO2", "PM2.5"]: Subset di media grandezza composto dal subset minimo aggiunto delle features "SO2" e "PM2.5"
+- *mid* ["CO", "NO2", "Proximity_to_Industrial_Areas", "SO2", "Temperature"]: Subset di media grandezza composto dal subset minimo aggiunto delle features "SO2" e "Temperature"
 - *max*: set completo di tutte le features del dataset
 
 
@@ -156,15 +156,197 @@ Per quanto riguarda il decision tree sul set completo i parametri migliori sono 
 
 Visualizzando come i parametri si siano modificati con il cambio di features utilizzate è interessante notare come il numero di elementi per effettuare lo split di un nodo sia diminuito drasticamente mentre la profondità è cresciuta. 
 
-<img src="immagini_report/image-20250410180259424.png" alt="image-20250410180259424" style="zoom:67%;" />
+<img src="immagini_report/image-20250411151153396.png" alt="image-20250411151153396" style="zoom:80%;" />
 
 ### Analisi risultati
 
-Una volta allenati i tre decision trees differenti è possibile confrontare i risultati ottenuti. Per farlo è stato scelto di rappresentare le confusion matrix delle predizioni effettuate dagli alberi ed il classification report. 
+Una volta allenati i tre decision trees differenti è possibile confrontare i risultati ottenuti. Per farlo è stato scelto di rappresentare le confusion matrix delle predizioni effettuate dagli alberi ed il classification report. Come emerge dai dati le classi "Hazardous" e "Poor" sono quelle più confuse da tutti e 3 gli alberi anche se si assiste ad un notevole miglioramento nel caso *max*. In particolar modo i risultati più significativi sono:
 
-<img src="immagini_report/image-20250410184450489.png" alt="image-20250410184450489"  />
+- Notevole aumento del recall sulla classe "Hazardous" (0.73 -> 0.79) e aumento precision sulla classe "Poor" (0.75 -> 0.78): Incremento significativo di classi incorrettamente classificate "Poor" invece che "Hazardous"
+
+- Nonostante la diminuzione in numero assoluto di records classificati correttamente "Poor" si può notare un aumento generale dell'accuracy dei modelli anche se minimo
+
+<img src="immagini_report/image-20250411151240648.png" alt="image-20250411151240648" style="zoom:80%;" />
 
 <img src="immagini_report/class_report.png" alt="class_report" style="zoom:150%;" />
 
+Questi risultati sono stati poi confermati visualizzando il confronto fra gli score ottenuti dai 3 alberi durante la fase di cross validation. Nel grafico infatti si può notare un aumento dell'accuracy del modello con uno spread di valori nel caso *max* abbastanza inferiore rispetto agli altri. 
 
+<img src="immagini_report/image-20250411151327144.png" alt="image-20250411151327144" style="zoom:80%;" />
+
+Infine è stata verificata l'importanza delle features osservando come essa cambiasse per ognuno dei tre modelli. Come è possibile notare la feature "CO" è risultata la più significativa nella costruzione del modello con "Proximity" a seguire come seconda per importanza.  La scelta delle features da inserire nei tre diversi subset risulta azzeccata, con "SO2" e "Temperature" che risultano più importanti per la creazione del modello rispetto alle altre features.
+
+<img src="immagini_report/image-20250411151407970.png" alt="image-20250411151407970" style="zoom:80%;" />
+
+
+
+## Random Forest
+
+### Parametri
+
+Anche in questo caso il primo passo è stato effettuare una GridSearch per ottenere i parametri migliori. La ricerca è stata effettuata sui parametri: 
+
+- *criterion* [Gini, logloss, entropy]: Criterio utilizzato per lo split
+- *n_estimators* [2, 5, 10, 25, 50, 100]: Numero di alberi nella foresta
+- *max depth* [3,5,7,9,15,20, None] 
+- *min samples Split* [2, 5, 10, 50, 100, 250]
+
+Inoltre ogni GridSearch è stata valutata con una 5-fold cross validation.
+
+#### Min Forest
+
+Per quanto riguarda la forest sul subset minimo i parametri migliori sono risultati: 
+
+- criterion: Gini
+- n_estimators: 50
+- max depth: 9
+- min samples split: 10
+
+#### Mid  Forest
+
+Per quanto riguarda la forest sul subset di media grandezza i parametri migliori sono risultati: 
+
+- criterion: Gini
+- n_estimators: 50
+- max depth: 9
+- min samples split: 10
+
+#### Max Forest
+
+Per quanto riguarda la forest sul set completo i parametri migliori sono risultati: 
+
+- criterion: entropy
+- n_estimators: 50
+- max depth: 15
+- min samples split: 5
+
+#### Evoluzione dei parametri
+
+Visualizzando come i parametri si siano modificati con il cambio di features utilizzate è interessante notare come il numero di elementi per effettuare lo split di un nodo sia diminuito  mentre la profondità è cresciuta, similmente a quanto accaduto con gli alberi di decisione. E' possibile notare inoltre come il numero di alberi presenti nella forest sia sempre risultato uguale, indipendentemente dal subset di features utilizzato. 
+
+<img src="immagini_report/image-20250411151453405.png" alt="image-20250411151453405" style="zoom:80%;" />
+
+### Analisi risultati
+
+Sono state rappresentate le confusion matrix delle predizioni effettuate ed il classification report. Come per gli alberi di decisione le classi "Hazardous" e "Poor" sono quelle più confuse ma vi è un notevole miglioramento rispetto ai modelli precedenti. In particolar modo i risultati più significativi sono:
+
+- Notevole aumento della precision sulla classe "Poor" (0.79 -> 0.85) e aumento precision sulla classe "Hazardous" (0.83 -> 0.90): Incremento significativo delle classificazioni corrette di "Poor", diminuendo i falsi positivi appartenenti alla classe "Hazardous" e "Moderate"
+
+<img src="immagini_report/image-20250411151534181.png" alt="image-20250411151534181" style="zoom:80%;" />
+
+<img src="immagini_report/class_report_2.png" alt="class_report_2" style="zoom:150%;" />
+
+Questi risultati sono stati poi confermati visualizzando il confronto fra gli score ottenuti dalle 3 forests durante la fase di cross validation. Come per gli alberi di decisione, all'aumentare della grandezza del set di features, oltre ad un aumento dell'accuracy vi è una diminuzione graduale dello spread di quest'ultima. 
+
+<img src="/home/mattinz/Documents/VSCode/Python/MLDM/machine-learning/immagini_report/image-20250411151637477.png" alt="image-20250411151637477" style="zoom:80%;" />
+
+Dall'analisi dell'importanza delle features si può notare come "Proximity" e "CO" risultino nuovamente quelle ad impatto maggiore sul modello, con una differenza fra le due abbastanza ridotta. In generale tutte le features, ad esclusione di PM2.5 e PM10, hanno un'importanza piuttosto significativa sulle predizioni effettuate da tutti i modelli.  
+
+<img src="immagini_report/image-20250411151704999.png" alt="image-20250411151704999" style="zoom:80%;" />
+
+
+
+## SVM - One Versus Rest
+
+### Parametri
+
+Per quanto riguarda i parametri dei classificatori di tipo support vector 
+
+La ricerca dei parametri si è focalizzata su: 
+
+- *C* [0.01,0.1,1.0,10.0,50.0]: Parametro di regolarizzazione per i support vector 
+- *gamma* [0.0001, 0.001, 0.01, 0.1, 1.0, 5.0]: Parametro che può essere visto come l'inverso del raggi di influenza dei support vector
+
+Inoltre ogni GridSearch è stata valutata con una 5-fold cross validation.
+
+#### Min SVM _OVR
+
+Per quanto riguarda SVM sul subset minimo i parametri migliori sono risultati: 
+
+- C: 10
+- gamma: 1
+
+#### Mid  SVM_OVR
+
+Per quanto riguarda SVM sul subset di media grandezza i parametri migliori sono risultati: 
+
+- C: 50
+- gamma: 0.1
+
+#### Max SVM_OVR
+
+Per quanto riguarda SVM sul set completo i parametri migliori sono risultati: 
+
+- C: 50
+- gamma: 0.01
+
+#### Evoluzione dei parametri
+
+All'aumento delle features corrisponde sia un aumento del valore di C che una diminuzione del valore di gamma. 
+
+<img src="immagini_report/image-20250411191022048.png" alt="image-20250411191022048" style="zoom:67%;" />
+
+### Analisi dei risultati
+
+Dalla rappresentazione delle confusion matrix delle predizioni effettuate ed il classification report risulta che le classi "Hazardous" e "Poor" sono quelle più confuse. In questo caso passare ad un set di features più grande per eseguire il training risulta in un miglioramento abbastanza significativo:
+
+- Notevole aumento della precision sulla classe "Hazardous" (0.78 -> 0.85) e della precision della classe "Poor" (0.78 -> 0.75): I membri di entrambi le classi vengono riconosciuti in numero molto maggiore
+
+<img src="immagini_report/image-20250411195027105.png" alt="image-20250411195027105" style="zoom: 80%;" />
+
+<img src="immagini_report/class_report_3.png" alt="class_report_3" style="zoom:150%;" />
+
+Dalla valutazione del grafico sul cross validation score si può osservare il notevole aumento delle prestazioni dei modelli. 
+
+<img src="immagini_report/image-20250411195112811.png" alt="image-20250411195112811" style="zoom:80%;" />
+
+Al contrario degli alberi di decisione e di random forest, nelle SVM create con un kernel non-lineare , non esiste un corrispettivo dell'importanza delle features. Questo poichè, lavorando in con queste tipologie di kernel, si perde l'associazione fra lo spazio delle features e lo spazio in cui viene eseguito il taglio di SVM. Di conseguenza i "pesi" assegnati in SVM non corrispondono direttamente ad una ipotetica importanza delle features. 
+
+
+
+## SVM - One Versus One
+
+### Parametri
+
+Per quanto riguarda i parametri dei classificatori di tipo support vector 
+
+La ricerca dei parametri si è focalizzata su: 
+
+- *criterion* [Gini, logloss, entropy]: Criterio utilizzato per lo split
+- *n_estimators* [2, 5, 10, 25, 50, 100]: Numero di alberi nella foresta
+- *max depth* [3,5,7,9,15,20, None] 
+- *min samples Split* [2, 5, 10, 50, 100, 250]
+
+Inoltre ogni GridSearch è stata valutata con una 5-fold cross validation.
+
+#### Min SVM _OVO
+
+Per quanto riguarda la forest sul subset minimo i parametri migliori sono risultati: 
+
+- criterion: Gini
+- n_estimators: 50
+- max depth: 9
+- min samples split: 10
+
+#### Mid  SVM_OVO
+
+Per quanto riguarda la forest sul subset di media grandezza i parametri migliori sono risultati: 
+
+- criterion: Gini
+- n_estimators: 50
+- max depth: 9
+- min samples split: 10
+
+#### Max SVM_OVO
+
+Per quanto riguarda la forest sul set completo i parametri migliori sono risultati: 
+
+- criterion: entropy
+- n_estimators: 50
+- max depth: 15
+- min samples split: 5
+
+
+
+![image-20250411180255032](/home/mattinz/Documents/VSCode/Python/MLDM/machine-learning/relazioneMLDM.assets/image-20250411180255032.png)
 
