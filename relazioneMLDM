@@ -282,9 +282,9 @@ Per quanto riguarda SVM sul set completo i parametri migliori sono risultati:
 
 #### Evoluzione dei parametri
 
-All'aumento delle features corrisponde sia un aumento del valore di C che una diminuzione del valore di gamma. 
+All'aumento delle features corrisponde sia un aumento del valore di C che una diminuzione del valore di gamma. Per il valore di gamma è stata utilizzata una scala logaritmica sull'asse y. 
 
-<img src="immagini_report/image-20250411191022048.png" alt="image-20250411191022048" style="zoom:67%;" />
+<img src="immagini_report/image-20250412154240472.png" alt="image-20250412154240472" style="zoom:80%;" />
 
 ### Analisi dei risultati
 
@@ -292,13 +292,13 @@ Dalla rappresentazione delle confusion matrix delle predizioni effettuate ed il 
 
 - Notevole aumento della precision sulla classe "Hazardous" (0.78 -> 0.85) e della precision della classe "Poor" (0.78 -> 0.75): I membri di entrambi le classi vengono riconosciuti in numero molto maggiore
 
-<img src="immagini_report/image-20250411195027105.png" alt="image-20250411195027105" style="zoom: 80%;" />
+<img src="immagini_report/image-20250412154320503.png" alt="image-20250412154320503" style="zoom:80%;" />
 
 <img src="immagini_report/class_report_3.png" alt="class_report_3" style="zoom:150%;" />
 
 Dalla valutazione del grafico sul cross validation score si può osservare il notevole aumento delle prestazioni dei modelli. 
 
-<img src="immagini_report/image-20250411195112811.png" alt="image-20250411195112811" style="zoom:80%;" />
+<img src="/home/mattinz/Documents/VSCode/Python/MLDM/machine-learning/immagini_report/image-20250412154354503.png" alt="image-20250412154354503" style="zoom:67%;" />
 
 Al contrario degli alberi di decisione e di random forest, nelle SVM create con un kernel non-lineare , non esiste un corrispettivo dell'importanza delle features. Questo poichè, lavorando in con queste tipologie di kernel, si perde l'associazione fra lo spazio delle features e lo spazio in cui viene eseguito il taglio di SVM. Di conseguenza i "pesi" assegnati in SVM non corrispondono direttamente ad una ipotetica importanza delle features. 
 
@@ -306,47 +306,88 @@ Al contrario degli alberi di decisione e di random forest, nelle SVM create con 
 
 ## SVM - One Versus One
 
+E' stato effettuato anche uno studio su un classificatore SVM di tipo "One versus one" per effettuare la classificazione. I risultati ottenuti sono stati identici al classificatore della tipologia "One versus rest" utilizzata precedentemente. 
+
+
+
+##  SVM Iterativa
+
+Come ultima versione di SVM è stata pensata una versione iterativa del modello. Il modello così formato è composto da una serie di SVM ognuna allenata per individuare solamente una delle classificazione. Per effettuare una predizione su un record, esso "passa" attraverso la prima SVM e, se non appartiene alla prima classe, viene "passato" alla seconda e così fino alla corretta classificazione. 
+
 ### Parametri
 
-Per quanto riguarda i parametri dei classificatori di tipo support vector 
+Utilizzando SVM lineari all'interno della ricorsion, lo studio dei parametri è stato effettuato solo sul parametro C. Nello specifico abbiamo scelto di utilizzare la media sul cross validation score eseguito su 10 fold per effettuare la scelta dei parametri migliori. 
 
-La ricerca dei parametri si è focalizzata su: 
+Range di valori di C: 
 
-- *criterion* [Gini, logloss, entropy]: Criterio utilizzato per lo split
-- *n_estimators* [2, 5, 10, 25, 50, 100]: Numero di alberi nella foresta
-- *max depth* [3,5,7,9,15,20, None] 
-- *min samples Split* [2, 5, 10, 50, 100, 250]
+- Combinazioni di valori 0.001, 0.01, 0.1, 1 e 10 con aggiunta delle tuple [5,5,5], [25,25,25] e [50,50,50]
 
-Inoltre ogni GridSearch è stata valutata con una 5-fold cross validation.
+#### Min iSVM
 
-#### Min SVM _OVO
+Per quanto riguarda iSVC sul subset minimo il parametro migliore è risultato: 
 
-Per quanto riguarda la forest sul subset minimo i parametri migliori sono risultati: 
+- C = [0.1, 0.1, 1.0]
 
-- criterion: Gini
-- n_estimators: 50
-- max depth: 9
-- min samples split: 10
+#### Mid iSVM 
 
-#### Mid  SVM_OVO
+Per quanto riguarda iSVC sul subset di media grandezza il parametro migliore è risultato: 
 
-Per quanto riguarda la forest sul subset di media grandezza i parametri migliori sono risultati: 
+- C = [1.0, 0.1, 0.1]
 
-- criterion: Gini
-- n_estimators: 50
-- max depth: 9
-- min samples split: 10
+#### Max iSVM 
 
-#### Max SVM_OVO
+Per quanto riguarda iSVC sul dataset completo il parametro migliore è risultato: 
 
-Per quanto riguarda la forest sul set completo i parametri migliori sono risultati: 
+- C = [0.1, 1.0, 0.1]
 
-- criterion: entropy
-- n_estimators: 50
-- max depth: 15
-- min samples split: 5
+#### Evoluzione dei parametri
+
+I valori assunti da C non sono variati per i 3 modelli allo stesso modo. Per il valore di C è stata utilizzata una scala logaritmica sull'asse y. 
+
+<img src="immagini_report/image-20250414170618746.png" alt="image-20250414170618746" style="zoom:67%;" />
 
 
 
-![image-20250411180255032](/home/mattinz/Documents/VSCode/Python/MLDM/machine-learning/relazioneMLDM.assets/image-20250411180255032.png)
+### Analisi dei risultati
+
+Dalla rappresentazione delle confusion matrix delle predizioni effettuate ed il classification report risulta che la classe "Poor" è quella più confusa ma, in questo caso, con la classe "Moderate". Passare ad un set di features più grande migliora in modo significativo il livello della classificazione:
+
+- Notevole aumento della precision sulla classe "Poor" (0.69 -> 0.81) : Incremento significativo delle classificazioni corrette di "Poor", diminuendo i falsi positivi appartenenti alla classe "Hazardous" e "Moderate"
+- Aumento della precision sulla classe "Hazardous" (0.74 -> 0.88) 
+
+<img src="immagini_report/image-20250414171321885.png" alt="image-20250414171321885" style="zoom:67%;" />
+
+<img src="immagini_report/class_report_4.png" alt="class_report_4" style="zoom:150%;" />
+
+Infine sono rappresentati i grafici del cross validation score. Si può notare l'incremento significativo delle previsioni corrispondente all'aumento delle features inserite nel modello. 
+
+![image-20250414172306287](immagini_report/image-20250414172306287.png)
+
+
+
+## Confronto dei modelli
+
+Come ultimo step sono stati selezionati i modelli più performanti per ognuna delle tipologie che sono state analizzate ed in seguito sono stati confrontati i risultati ottenuti. 
+
+### Analisi dei risultati
+
+Di seguito sono riportate le confusion matrix e i classification report dei 4 modelli migliori. I risultati più significativi sono:
+
+- SVM risulta il più performante per quanto riguarda le classi "Good" e "Hazardous" con un totale di 17 errori di classificazione ed un F1-score di 1.0 e 0.87 rispettivamente sulle due classi
+- Forest risulta invece il migliore per quanto riguarda la predizione delle classi "Moderate" e "Poor" con un F1-score di 0.96 e 0.87 rispettivamente
+- In generale tutti i modelli hanno performato quasi perfettamente nell'assegnazione della classe "Good"
+
+<img src="immagini_report/image-20250415122503721.png" alt="image-20250415122503721" style="zoom:67%;" />
+
+
+
+<img src="immagini_report/class_report_comparison.png" alt="class_report_comparison" style="zoom:150%;" />
+
+Osservando infine i punteggi ottenuti nella fase di cross validation si può osservare che in media la Forest sia il modello con le migliori prestazioni, con un'accuracy media più alta di un punto percentuale rispetto agli altri tre modelli ed uno spread di valori inferiore. 
+
+<img src="immagini_report/image-20250415124240559.png" alt="image-20250415124240559" style="zoom:67%;" />
+
+
+
+## Conclusioni
 
