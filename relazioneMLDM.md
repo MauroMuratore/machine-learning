@@ -4,7 +4,7 @@
 
 Il dataset preso in considerazione (https://www.kaggle.com/datasets/mujtabamatin/air-quality-and-pollution-assessment) si concentra sulla predizione della qualità dell'aria attraverso diverse regioni, basandosi su una serie di fattori demografici ed ambientali.
 
-L'obbiettivo del lavoro svolto dal gruppo è stato di analizzare diversi algoritmi di predizione multi-classe e confrontare i risultati ottenuti sulla predizione. In particolar modo sono stati selezionati 3 principali algoritmi da allenare e valutare:
+L'obiettivo del lavoro svolto dal gruppo è stato di analizzare diversi algoritmi di predizione multi-classe e confrontare i risultati ottenuti sulla predizione. In particolar modo sono stati selezionati 3 principali algoritmi da allenare e valutare:
 
 - *Decision tree*
 - *Random forest*
@@ -386,8 +386,4 @@ Di seguito sono riportate le confusion matrix e i classification report dei 4 mo
 Osservando infine i punteggi ottenuti nella fase di cross validation si può osservare che in media la Forest sia il modello con le migliori prestazioni, con un'accuracy media più alta di un punto percentuale rispetto agli altri tre modelli ed uno spread di valori inferiore. 
 
 <img src="immagini_report/image-20250415124240559.png" alt="image-20250415124240559" style="zoom:67%;" />
-
-
-
-## Conclusioni
 
